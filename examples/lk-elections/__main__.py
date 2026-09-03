@@ -88,37 +88,44 @@ class Election:
 
         return new_x1, new_x2
 
+    @staticmethod
+    def simulate_transition(year1, year2):
+        election1 = Election("presidential", year1)
+        election2 = Election("presidential", year2)
 
-if __name__ == "__main__":
-    election1 = Election("presidential", 1982)
-    election2 = Election("presidential", 2024)
+        X1 = election1.X
+        X2 = election2.X
 
-    X1 = election1.X
-    X2 = election2.X
+        X1, X2 = Election.add_new_columns(X1, X2)
 
-    X1, X2 = Election.add_new_columns(X1, X2)
-
-    ent_pds = Ent.list_from_type(EntType.PD)
-    print(ent_pds[0].id, ent_pds[0].name)
-    print(
-        election1._valid_parties + ["Others", "Rejected", "Not Polled", "New"]
-    )
-    print(X1[0])
-    print(
-        election2._valid_parties + ["Others", "Rejected", "Not Polled", "New"]
-    )
-    print(X2[0])
-
-    model = MarginFlowModel().fit(X1, X2)
-
-    for i1, party1 in enumerate(
-        election1._valid_parties + ["Others", "Rejected", "Not Polled", "New"]
-    ):
-        for i2, party2 in enumerate(
+        ent_pds = Ent.list_from_type(EntType.PD)
+        print(ent_pds[0].id, ent_pds[0].name)
+        print(
+            election1._valid_parties
+            + ["Others", "Rejected", "Not Polled", "New"]
+        )
+        print(X1[0])
+        print(
             election2._valid_parties
             + ["Others", "Rejected", "Not Polled", "New"]
+        )
+        print(X2[0])
+
+        model = MarginFlowModel().fit(X1, X2)
+
+        for i1, party1 in enumerate(
+            election1._valid_parties
+            + ["Others", "Rejected", "Not Polled", "New"]
         ):
-            p = model.transition_matrix_[i1, i2]
-            if p < Election.P_LIMIT:
-                continue
-            print(f"{party1} -> {party2}: {p:.1%}")
+            for i2, party2 in enumerate(
+                election2._valid_parties
+                + ["Others", "Rejected", "Not Polled", "New"]
+            ):
+                p = model.transition_matrix_[i1, i2]
+                if p < Election.P_LIMIT:
+                    continue
+                print(f"{party1} -> {party2}: {p:.1%}")
+
+
+if __name__ == "__main__":
+    Election.simulate_transition(2019, 2015)
