@@ -77,7 +77,7 @@ $$
 0.300000 & 0.700000
 \end{bmatrix},
 \qquad
-\operatorname{MAE}(\widehat{P},P)<10^{-8}.
+\mathrm{MAE}(\widehat{P},P)<10^{-8}.
 $$
 
 ## Use the library
