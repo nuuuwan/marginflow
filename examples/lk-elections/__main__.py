@@ -57,7 +57,7 @@ class Election:
                 if k not in {"electors", "polled", "valid", "rejected"}
             }
             valid_party_to_votes = {
-                k: v for k, v in party_to_votes.items() if k in valid_parties
+                party: party_to_votes.get(party, 0) for party in valid_parties
             }
             total_valid_votes = sum(valid_party_to_votes.values())
             others_votes = valid - total_valid_votes
@@ -90,13 +90,24 @@ class Election:
 
 
 if __name__ == "__main__":
-    election1 = Election("presidential", 2015)
-    election2 = Election("presidential", 2019)
+    election1 = Election("presidential", 1982)
+    election2 = Election("presidential", 2024)
 
     X1 = election1.X
     X2 = election2.X
 
     X1, X2 = Election.add_new_columns(X1, X2)
+
+    ent_pds = Ent.list_from_type(EntType.PD)
+    print(ent_pds[0].id, ent_pds[0].name)
+    print(
+        election1._valid_parties + ["Others", "Rejected", "Not Polled", "New"]
+    )
+    print(X1[0])
+    print(
+        election2._valid_parties + ["Others", "Rejected", "Not Polled", "New"]
+    )
+    print(X2[0])
 
     model = MarginFlowModel().fit(X1, X2)
 
