@@ -1,3 +1,5 @@
 numpy>=1.26
 scipy>=1.11
+plotly>=6.0
+kaleido>=1.0
 pytest>=8
