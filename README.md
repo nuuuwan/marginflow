@@ -28,6 +28,58 @@ model-based estimate, not a reconstruction of individual records. It is most
 informative when groups have varied source compositions and represent the same
 population at both times.
 
+## The algorithm
+
+MarginFlow first converts each group's source counts into proportions. It then
+searches for the transition matrix whose predicted target proportions best
+explain the observed target counts. A softmax transformation keeps every
+candidate probability non-negative and makes each row sum to one.
+
+<!-- markdownlint-disable MD010 -->
+
+```text
+VALIDATE X and Y have matching groups and population totals
+SET source proportions from each row of X
+SET adjustable scores for each transition row
+
+REPEAT
+ SET transition probabilities from scores using softmax
+ SET predicted target proportions = source proportions x transition matrix
+ CALCULATE negative multinomial log likelihood from Y
+ UPDATE scores to reduce the negative log likelihood
+UNTIL the fit stops improving
+
+RETURN the best-fitting transition matrix
+```
+
+<!-- markdownlint-enable MD010 -->
+
+For group $g$, let $n_g$ be its population and $S$ its source proportions:
+
+$$
+n_g=\sum_i X_{gi}=\sum_j Y_{gj},
+\qquad
+S_{gi}=\frac{X_{gi}}{n_g}.
+$$
+
+Unrestricted scores $Z$ become a row-stochastic transition matrix through the
+softmax, and that matrix predicts target proportions $Q$:
+
+$$
+P_{ij}(Z)=\frac{e^{Z_{ij}}}{\sum_k e^{Z_{ik}}},
+\qquad
+Q_{gj}=\sum_i S_{gi}P_{ij}(Z).
+$$
+
+The fitted scores minimize the negative multinomial log likelihood:
+
+$$
+\widehat{Z}=\arg\min_Z
+\left[-\sum_g\sum_j Y_{gj}\log Q_{gj}\right],
+\qquad
+\widehat{P}=P(\widehat{Z}).
+$$
+
 ## Proof on synthetic data
 
 One deterministic unit test uses three groups whose result can be checked by
