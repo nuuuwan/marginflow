@@ -20,31 +20,26 @@ class SankeyDiagram:
         probability_limit=0.05,
     ):
         """Build a Sankey diagram and save it as a PNG image.
-
         Args:
             model: Fitted MarginFlow model.
             source_counts: Starting counts arranged by group and category.
             source_parties: Starting parties and their colors.
             target_parties: Final parties and their colors.
-            source_year: Year shown beside source labels.
-            target_year: Year shown beside target labels.
+            source_year: Year shown above the source nodes.
+            target_year: Year shown above the target nodes.
             output_path: Location of the PNG file to create.
             probability_limit: Smallest transition probability to draw.
-
         Returns:
             Path to the generated PNG file.
         """
         source, target, value, color = cls._links(
             model, source_counts, source_parties, probability_limit
         )
-        node = cls._nodes(
-            source_parties, target_parties, source_year, target_year
-        )
         figure = go.Figure(
             go.Sankey(
                 arrangement="snap",
                 domain={"y": [0.0, 0.9]},
-                node=node,
+                node=cls._nodes(source_parties, target_parties),
                 link={
                     "source": source,
                     "target": target,
@@ -54,7 +49,19 @@ class SankeyDiagram:
             )
         )
         figure.update_layout(
-            title_text=f"Estimated transitions: {source_year} to {target_year}",
+            annotations=[
+                {
+                    "text": f"<b>{year}</b>",
+                    "x": x,
+                    "xanchor": anchor,
+                    "y": 0.94,
+                    "showarrow": False,
+                }
+                for year, x, anchor in (
+                    (source_year, 0.01, "left"),
+                    (target_year, 0.99, "right"),
+                )
+            ],
             width=1600,
             height=max(
                 900, 70 * max(len(source_parties), len(target_parties))
@@ -67,12 +74,10 @@ class SankeyDiagram:
         return path
 
     @staticmethod
-    def _nodes(source_parties, target_parties, source_year, target_year):
+    def _nodes(source_parties, target_parties):
         parties = source_parties + target_parties
-        labels = [f"{party.name} ({source_year})" for party in source_parties]
-        labels += [f"{party.name} ({target_year})" for party in target_parties]
         return {
-            "label": labels,
+            "label": [party.name for party in parties],
             "color": [party.color for party in parties],
             "x": [0.01] * len(source_parties) + [0.99] * len(target_parties),
             "pad": 30,
