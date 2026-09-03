@@ -96,3 +96,21 @@ print(model.transition_matrix_)
 
 Synthetic recovery verifies the implementation when its model assumptions are
 true; it does not prove those assumptions for real populations.
+
+## Case study: Sri Lankan presidential elections
+
+The election example compares polling-division totals from 2019 and 2024.
+Parties with at least 5% of the national vote remain separate; smaller parties
+are combined as `Others`. `Rejected`, `Not Polled`, and `New` categories keep
+the population totals comparable between elections.
+
+![Estimated voter transitions from 2019 to 2024](examples/lk-elections/transition-sankey-2019-to-2024.png)
+
+The fitted model estimates that 70.8% of the 2019 SLPP-associated population
+moved to NPP in 2024, while 14.4% moved to SJB and 8.7% to the independent
+candidate recorded as `IND16`. For the 2019 NDF-associated population, the
+largest estimated flows are 50.6% to SJB and 29.9% to `IND16`.
+
+These are **model-estimated latent transitions**, not observed voter histories.
+The grouped results cannot show how any individual voted, and geographic or
+demographic differences between polling divisions may influence the estimates.
